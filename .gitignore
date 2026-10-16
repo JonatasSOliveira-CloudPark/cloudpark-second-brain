@@ -1,0 +1,58 @@
+# ==========================================
+# Second Brain - CloudPark
+# ==========================================
+
+# Obsidian - Configuracoes locais
+.obsidian/
+
+# Lixeiras
+.trash/
+.Trash-*/
+.local/share/Trash/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+
+# Arquivos temporarios
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.orig
+*.log
+
+# Credenciais e arquivos sensiveis
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+*credentials*
+*secret*
+*token*
+
+# Configuracoes locais de agentes
+.claude/
+.codex/
+.cursor/
+.github/
+
+# Dependencias e caches
+node_modules/
+__pycache__/
+.pytest_cache/
+.cache/
+dist/
+build/
+
+# Arquivos locais de editores
+.vscode/
+.idea/

@@ -1,0 +1,82 @@
+# ParkPro — Notas técnicas
+
+Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no código. As regras gerais do repo ficam no `CLAUDE.md` e no `AGENTS.md` dele; aqui entra só o que não está lá. Data da verificação: 2026-10-15.
+
+## Chat de ticket (cliente)
+- Arquivos: `src/presentation/pages/customer/support/Chat/` (hooks e stores) e `src/presentation/components/organism/Chat/`.
+- **Está preso ao cliente em vários pontos:**
+  - rotas `/v1/parkpro/...` fixas em `HttpTicketMessage.repository`, `HttpMedia.repository` e `HttpTicket.repository`;
+  - `SenderType.CUSTOMER` fixo na mensagem otimista (`organism/Chat/index.tsx`) e na presença;
+  - perfil do ParkPro em `useChatUser`;
+  - status pelo tópico `user/:userId/tickets/status`;
+  - "mensagem minha" comparando só o id (`CustomBubble`, `AudioPlayer` e o `user._id` do GiftedChat; ver [[react-native-gifted-chat - identidade do remetente]]).
+- **Envio e reenvio (PR #151, ainda não mesclada em 2026-10-15):** a fila fica em `useTicketMessages`.
+  - Só segura as mensagens seguintes a falha com `sendFailure.waitsForConnection` (conexão, timeout, 5xx, 408, 429).
+  - O anexo recusado no aparelho lança `AttachmentRejectedError` e vira falha definitiva.
+  - Timeout e erro de rede com o aparelho conectado usam o temporizador de 5 s, 20 s e 60 s.
+  - Offline, o app espera o MQTT reconectar, a volta ao app, um push ou o NetInfo.
+  - Envio e anexo usam `CHAT_SEND_GLOBAL_ERRORS`, que suprime o modal global também em 5xx.
+  - Aprendizados: [[App mobile - fila de envio com reenvio automático]].
+- O `TicketErrorFactory` troca a mensagem do 409 `ACTIVE_TICKET_EXISTS` por um texto fixo ("artigo nesse pátio"). Num fluxo novo, use a mensagem que o backend devolve.
+
+## Bug conhecido: status do chat apagado por evento de SLA
+- **Sintoma:** com o chat do cliente aberto, `status` e `status_label` do ticket ficam `undefined` no `ticket.store`. Isso aparece no chat e na `TicketInfo`, que usa o mesmo store, até recarregar.
+- **Causa:** o ERP publica no `user/:userId/tickets/status` o evento `ticket_sla_states_updated`, que vem sem `status` (task `update_sla_states_task`, só para ticket não `ENDED`, quando o estado de SLA muda). O `useTicketStatus` não filtra `event_type` e aplica qualquer evento; o `TicketStatusEventDTO` só declara `ticket_closed` e `ticket_reopened`.
+- **Impacto:** o envio de mensagens não é liberado indevidamente, porque o evento só chega para ticket aberto.
+- **Correção:** aplicar só os eventos que trazem status: `ticket_closed`, `ticket_reopened` e `ticket_end_pause` (fim da pausa, que o cliente já aplicava corretamente). Ignorar `ticket_sla_states_updated`. Feita em 2026-10-15 na branch `cloudpark/cloudpark-erp/732` (`TicketStatusService` + `isTicketStatusEvent`, commit `240398c`), ainda sem PR.
+
+## MQTT
+- O ERP publica em `parkpro-{stage}/ticket/:ticketId/status` os eventos `ticket_closed`, `ticket_reopened`, `ticket_end_pause` e `ticket_sla_states_updated`. Quem consome esse tópico tem de filtrar por `event_type`.
+- O app assina `ticket/:ticketId/queue/receive`, mas o ERP não publica nada nesse tópico (ele só existe no enum `WsTopics`).
+
+## Navegação e push
+- O `AppNavigator` monta um stack por persona dentro do mesmo `NavigationContainer`. O `OpenScreenNotificationHandler` só navega se o nome da tela estiver nas `routeNames` do stack atual. Por isso uma tela que o push abre precisa ter o mesmo nome (ex.: `"Chat"`) em todos os stacks que a usam.
+- O `TicketChatNotificationHandler` chama `notifications/read` (rota do cliente) quando o chat está aberto em primeiro plano. Na branch da #732, a sessão do técnico só limpa a notificação local.
+- **React Navigation 7:** `navigate(nome)` para uma tela que já está mais atrás no stack **empilha uma nova** (só volta com `pop: true`). Para voltar a uma tela existente, use `popTo(nome)`. Com a home do técnico (#732) na base do stack, `popToTop` passou a levar à home, e os retornos para a lista de visitas viraram `popTo("VisitList")`.
+
+## HTTP e sessão
+- Um único `axiosClient`. O token vem de `getActiveSession()`, com prioridade suporte > técnico > operador.
+- **Rota de outra persona com o token errado abre o diálogo global de erro** (`globalError.interceptor`) e não falha em silêncio. Toda chamada precisa respeitar a persona ativa.
+- O MQTT (`src/infra/mqtt/client.ts`) conecta sem credencial por persona. O técnico usa os mesmos tópicos de ticket.
+
+## Registro de dispositivo e logout (verificado em 2026-10-14, #739)
+- **Logout não desvincula o aparelho no servidor.** Os hooks `supportSessionPersistence` e `fieldTechSessionPersistence` chamam `DELETE /devices/<id>/` depois que o `logout()` do store zerou os tokens → requisição sem `Authorization`, recusada; o `finally` limpa o local mesmo assim. No operador/dashboard (`sessionPersistence` + `Device.service`), o `deleteDevice` nem chama o servidor.
+- O registro roda ao montar o stack do modo (`SupportStack.tsx`); falha só vira `Logger.warn`.
+- Versões: metadados do dispositivo só a partir da **2.1.1** (01/10/2026). Na 2.1.0, o registro pulava o POST se o token fosse igual ao último salvo (`LAST_FCM_KEY`).
+- O `deleteDevice` apaga também o `device_uuid` salvo, gerando UUID novo a cada login. A decisão é mantê-lo estável; ver [[2026-10-14 - Alarme de plantão e auditoria de acesso (#739)]].
+- **Efeito visível:** a rota `/support/devices/<id>/` não está em `AUTH_ENDPOINT_PATTERNS`, então o 401 do `DELETE` sem token abre o diálogo "Sessão expirada / Entrar novamente" depois de **todo** logout do plantão.
+- **O técnico já desvinculava no botão "Sair da conta":** `VisitList` chama `deleteDevice` antes do `logout()`. Os outros caminhos de logout do técnico não fazem isso.
+- **Os hooks de persistência também rodam no boot sem sessão,** porque o bootstrap chama `logout()`. O operador perdia o `parkpro.device_uuid` a cada abertura do app.
+- O `listenTokenRefresh` do plantão não devolve unsubscribe. Cada login acumula um listener, e depois do logout ele faz POST sem auth.
+- O técnico (`FieldTechStack`) ignora o resultado do registro.
+- `suppressGlobalError` (`true` ou uma lista de status) no config do axios evita o diálogo global. As rotas `.../auth/logout/` novas já casam com `AUTH_ENDPOINT_PATTERNS`, que suprime 401, 403 e 404.
+- O `SecureStorageService` lê a chave `mypark.*` antiga quando a `parkpro.*` não existe.
+- O `id` do `/support/devices/` só existia para o `DELETE`.
+- `GET /support/devices/` devolve uma lista sem paginação, com `fcm_token` e `device_uuid`.
+- Contrato novo do ERP (logout por modo, reatribuição de token): [[739 - Alarme de plantão em celular compartilhado]].
+
+## Versão mínima e atualização forçada (verificado em 2026-10-14)
+- **App:**
+  - O `globalError.interceptor` lê os headers de versão mínima (`MINIMUM_APP_VERSION_HEADERS`) e também trata o status 426 e os códigos `APP_UPDATE_REQUIRED` e afins. Isso abre um diálogo bloqueante "Atualizar aplicativo".
+  - O header só é lido em respostas de sucesso.
+  - Nenhum teste cobre esse caminho do header até 2026-10-14.
+- **O ERP não envia nenhum header de versão mínima** (verificado na branch 739).
+- **Por versão:**
+
+  | Versão | Interceptor de erro global | Headers lidos | `AppVersionGuard` |
+  |---|---|---|---|
+  | 2.0.0 (15/07/2026) | não | — | não |
+  | 2.1.0 (20/07/2026) | sim | `x-min-app-version`, `x-minimum-app-version`, `x-mypark-min-app-version` (sem `x-parkpro-*`) | sim |
+  | 2.1.1 (01/10/2026) | sim | inclui `x-parkpro-min-app-version` | sim, e corrige o crash no iOS (fca90ea) |
+
+- O `AppVersionGuard` bloqueia sempre que a loja tem versão mais nova (pela API de atualização da loja). Funciona no Android desde a 2.1.0 e no iOS só a partir da 2.1.1.
+
+## Testes (Jest)
+- **Importar o `axios` em tempo de execução pode derrubar a suíte** com `TypeError: Cannot cancel a stream that already has a reader`. O erro vem do adapter `fetch` do axios rodando sobre o `expo/virtual/streams`, e aconteceu em 2026-10-15 num teste de util que importava o `normalizeGlobalHttpError`.
+  - Contorno: um helper que só precisa de tipo do axios fica em módulo próprio, com `import type` (ex.: `src/infra/http/isTimeoutError.ts`).
+  - Alternativa: usar `jest.mock("@/infra/http/client")`, como fazem os testes de repositório.
+
+## Relacionados
+- [[732 - Falar com Suporte (técnico)]]
+- [[739 - Alarme de plantão em celular compartilhado]]
+- [[CloudPark ERP - Notas técnicas]]
