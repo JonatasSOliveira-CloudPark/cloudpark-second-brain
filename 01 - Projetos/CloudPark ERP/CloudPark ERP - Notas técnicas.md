@@ -6,6 +6,7 @@ Conhecimento do projeto `cloudpark/cloudpark-erp` confirmado em sessões de trab
 - Branch `cloudpark/cloudpark-erp/<nº issue>`; commit `<branch>: <tipo>(escopo): <descrição>` em português (ex.: `cloudpark/cloudpark-erp/#732: feat(support): ...`).
 - Sem linha de atribuição de IA em commits/PRs; autor e committer com o e-mail corporativo.
 - PR: assignee = autor, reviewer = rkoball; ao abrir, comentar na issue o "Checklist de Finalização de Tarefa". Se o checklist já existe (por exemplo, depois de ajustes do review), editar o comentário existente e acrescentar só o que mudou para o produto. Não postar um segundo checklist, para não confundir o QA (escolha do usuário em 2026-10-15, #686).
+- Atualizar PR já revisada com o master: o usuário escolheu **rebase + force push** (`--force-with-lease`), não merge, mesmo avisado de que a revisão perde o diff incremental (#726, 2026-10-16).
 - Código sem comentários óbvios; planejar respeitando a arquitetura existente e levantar dúvidas em perguntas numeradas.
 
 ## Suporte (`support`)
@@ -13,6 +14,7 @@ Conhecimento do projeto `cloudpark/cloudpark-erp` confirmado em sessões de trab
 - Ticket sem `request_type` quebrava pontos que faziam `ticket.title or ticket.request_type.title`; usar `Ticket.display_title`.
 - `Ticket.search_cache` é preenchido por trigger **só no INSERT** (`fn_create_support_ticket_cache`, última versão na migration `0105`); campos separados por `|` e lidos por posição em `TicketTextSearchSerializer` e no seletor de ticket do fieldcontrol. Mudar a função exige migration + backfill.
 - Chat: estado da conversa em `TicketConversationStateDomain` (`last_chat_message_sender`, `pending_customer_messages`); efeitos do envio do solicitante em `TicketRequesterMessageDomain.on_message_sent`.
+- Envio de mensagem do chat é idempotente por `client_message_id` + `sender_type` no ticket (`TicketMessageDomain.save_once`, sob `select_for_update` do ticket; desde a #726). Ajustes de SLA/NRT e atribuição do agente rodam no `after_create`, na mesma transação. No reenvio, `TicketRealtimeDomain.republish_message_if_not_attempted` refaz o publish (e o push do agente) se `realtime_publish_attempted_at` for nulo; abas e notificação ao suporte não são refeitas (débito aceito).
 - `fieldcontrol.domain` importa `support.domain` → regra que precisa dos dois fica no `fieldcontrol` (o inverso dá import circular).
 
 ## Plantão (`OnCallDomain`, desde a #739)
@@ -54,3 +56,4 @@ Conhecimento do projeto `cloudpark/cloudpark-erp` confirmado em sessões de trab
 - [[739 - Alarme de plantão em celular compartilhado]]
 - [[686 - Aceite de plantão na reabertura de chamado]]
 - [[Django + PostgreSQL - recriar índice sem travar a tabela]]
+- [[Idempotência de POST com ID do cliente - efeitos colaterais]]
