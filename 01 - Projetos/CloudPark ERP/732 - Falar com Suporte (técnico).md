@@ -37,3 +37,16 @@ Migrations no `support`: `0102` a `0105`.
   - Rotas do app `media` com `AllowAny` no host público (`api/v1/media/media-files/`, `api/v1/tickets/<id>/media/`).
   - MQTT sem autenticação/ACL: qualquer cliente assina/publica nos tópicos de ticket.
   - `TicketCreateSerializer` do cliente (ParkPro) não confere se o pátio é do usuário; `TicketOpeningCheckView` duplica a regra de time sem o redirecionamento fora do horário.
+
+## Dependências
+- **Nova dependência (decidida pelo usuário em 2026-10-16):** as empresas de técnico (`fieldcontrol.TechnicianCompany`) precisarão ter cadastrados os pátios a que têm acesso. A listagem de pátios que o técnico seleciona no app (`GET field/parkings/`) passa a sair desse cadastro da empresa, e não mais de "todos os pátios" (decisão provisória, aguardando o QA).
+- **Impacto previsto:**
+  - novo vínculo empresa↔pátio (M2M) com migration;
+  - a busca de pátios do técnico passa a filtrar pela empresa;
+  - a abertura de ticket pelo botão deve conferir que o pátio pertence à empresa do técnico;
+  - o app depende desse cadastro estar preenchido.
+- **Em aberto (não decidido):**
+  - regra para técnico sem empresa;
+  - cadastro de pátios pelo admin do ERP;
+  - comportamento na abertura pela visita;
+  - migration inicial.
