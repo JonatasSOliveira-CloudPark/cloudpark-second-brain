@@ -50,3 +50,9 @@ Migrations no `support`: `0102` a `0105`.
   - cadastro de pátios pelo admin do ERP;
   - comportamento na abertura pela visita;
   - migration inicial.
+- **Decisões de 2026-10-16 (respostas do usuário):**
+  - Técnico sem empresa: ainda não decidido; o usuário prefere que todo técnico esteja cadastrado em uma empresa. Pendência: definir se os técnicos próprios entram em uma empresa interna.
+  - Cadastro de pátios: no ERP Django, na tela/admin de empresa de técnico (`fieldcontrol.TechnicianCompany`).
+  - Abertura pela visita com pátio fora do cadastro: liberar, desde que a visita seja do técnico. O usuário pediu uma verificação de segurança "inteligente", ainda sem definição do que é. Pendência em aberto.
+  - Empresas existentes começam sem pátios cadastrados.
+  - Restrição provisória com o QA: pergunta em aberto. O usuário não entendeu a formulação; reformular antes de decidir.
