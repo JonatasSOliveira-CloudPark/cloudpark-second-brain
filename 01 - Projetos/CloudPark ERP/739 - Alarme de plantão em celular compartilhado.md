@@ -1,7 +1,8 @@
 # #739 — Alarme de plantão não tocou (celular compartilhado)
 
 - Issue: https://github.com/cloudpark/cloudpark-erp/issues/739
-- Repo/branch ERP: `cloudpark/cloudpark-erp`, branch `cloudpark/cloudpark-erp/739` (enviada; **sem PR** em 2026-10-14)
+- Repo/branch ERP: `cloudpark/cloudpark-erp`, branch `cloudpark/cloudpark-erp/739`. **Mescladas em 2026-10-20**, aprovadas pelo rkoball: ERP [#766](https://github.com/cloudpark/cloudpark-erp/pull/766) em `master` (merge `b059c0ce`); app ParkPro [#155](https://github.com/cloudpark/cloudpark-parkpro/pull/155) em `test`.
+- Checklist de finalização postado na issue em 2026-10-19 (comentário novo, sem edição de outro).
 - Decisões e justificativas: [[2026-10-14 - Alarme de plantão e auditoria de acesso (#739)]]
 - Notas técnicas: [[CloudPark ERP - Notas técnicas]], [[ParkPro - Notas técnicas]]
 
@@ -61,11 +62,27 @@ Branch local, **nada enviado ao remoto**, sem PR. Histórico do dia em [[2026-10
 - Ao fim do dia: 207 suítes e 1184 testes passando, typecheck só com os 10 erros que já existiam, lint com 0 erros. Nada foi testado em aparelho.
 - **App antigo:** a versão nova não usa mais `DELETE .../devices/<id>/`. As rotas continuam no ERP para os apps já instalados (`TODO(cloudpark-erp#739)`).
 
+### Estado em 2026-10-19 (ERP)
+- Branch limpa `cloudpark/cloudpark-erp/739-limpa`, criada a partir de `origin/master` em 2026-10-17 com os 12 commits da atividade, sem trailer de IA. A branch antiga com merges e trailer ficou em `backup/739-antes-trailer` (local) e `backup/cloudpark-erp-739-antes-limpeza` (remoto).
+- Revisões do `/revisar`: rodada completa (2 bloqueantes e menores, corrigidos), rodada 2, rodada 3 (migração anulável em `0110`) e rodada rápida dos commits novos. A última rodada que bloqueava (teste do caso UUID vazio) foi resolvida em `e57acb7c`.
+- Commits novos em 19/10: savepoint na auditoria (`a4ae872e`), auditoria da remoção por token repetido (`7756e75c`), alerta com plantonista escalado não recebido (`30957f8b`), texto da escalada (`0ed1217f`), teste do operador (`8c1bf8ae`), colunas anuláveis em `0110` (`a1cc1b0f`), texto do alerta parcial (`0cfa138d`), líder escalado (`f74df9fd`), sem reenvio ao líder (`e38c4a70`), cache protegido (`e708fd6b`), auditoria UUID técnico/plantão (`dd70fe25` e correção `9f0ab9f1`), permissão do log (`788d69ae`), testes do caso vazio (`e57acb7c`).
+- Revisão marcada na PR: commit `9f0ab9f1`. O último commit (`e57acb7c`) só acrescenta testes e foi publicado depois dessa revisão.
+
+### Em aberto (ERP)
+- Decisão com o PO: o alerta conta o líder acionado em paralelo, mesmo fora da escala? Hoje conta.
+- Checar se o app usa o id do aparelho no `DELETE` depois do re-registro, já que o id muda quando o UUID muda.
+- Alerta parcial consome a chave de 24h do chamado; registrado na PR.
+- Levantar à mão a escala, os chamados e os logs do fim de semana e do feriado (sem acesso ao banco de produção).
+- Conflito de migrations com a #732 (`support/0102`…`0105`): conferir ao mesclar.
+
+### Estado do app ParkPro (PR #155, base `test`, 2026-10-19)
+- PR mesclada em `test` em 2026-10-20. Os passos e commits do app estão em [[ParkPro - Notas técnicas]].
+- Revisão do `/revisar` sobre `53c4d54` sem bloqueantes. Em 2026-10-20 o rkoball aprovou a PR, com duas sugestões não bloqueantes (drain do logout e deduplicação do operador). Ambas foram aplicadas no commit `3975e98` e respondidas nas threads. Em aberto antes do merge: deploy do ERP #766 e validação no aparelho (roteiro de 11 cenários, ainda não feito).
+- **Branch mãe `cloudpark/cloudpark-erp/739`:** em `187d9e9`, com o doc temporário `c1a723e` (`docs/739-mae-dependencia-150.md`). Não recebe as 6 correções novas do #739 enquanto elas dependerem do #150 (chat), que ainda não está na `stable`. Quando estiver, reconstruir a mãe a partir da `stable` com só os commits `#739` e remover o doc.
+- Checagem do `DELETE` (ver acima) segue em aberto.
+
 ## Pendências
-- Abrir a PR do ERP (assignee @me, reviewer rkoball) + checklist na issue; comentar na issue a causa raiz e as evidências (combinado para o fim da atividade).
-- **Conflito de migrations previsto:** a #732 também cria `support/0102`…`0105` a partir de `0101_merge`. A segunda a entrar no master precisa de merge migration (uma folha por app).
-- App ParkPro: Passos 0 a 4 commitados; Passo 5 sem commit; faltam os Passos 6 e 7, o push e a PR `739-test → test` (assignee @me, reviewer rkoball). Veja o plano e o estado acima.
-- **Versão mínima (ERP):** hoje o ERP não envia header de versão mínima. Falta implementar `PARKPRO_MIN_APP_VERSION` + `x-min-app-version` (lido pelo app desde a 2.1.0) e ativá-lo depois que o app novo for publicado.
+- Deploy do ERP e validação no aparelho (roteiro de 11 cenários do app).
+- Versão mínima do app (`PARKPRO_MIN_APP_VERSION` + `x-min-app-version`): fica para depois da publicação do app novo nas lojas.
 - Revogar JWT no logout: adiado por decisão do usuário.
-- `fieldcontrol.views.TechnicianDeviceViewSet` está sem rota (código morto); não tratado.
 - Ação operacional sugerida: cada plantonista conferir em "Dispositivos de Atendente" o próprio registro antes do plantão até o deploy.

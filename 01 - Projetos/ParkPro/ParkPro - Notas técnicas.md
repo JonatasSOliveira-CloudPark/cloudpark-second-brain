@@ -55,6 +55,19 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 - `GET /support/devices/` devolve uma lista sem paginação, com `fcm_token` e `device_uuid`.
 - Contrato novo do ERP (logout por modo, reatribuição de token): [[739 - Alarme de plantão em celular compartilhado]].
 
+## Registro e logout após a PR #155 (estado em 2026-10-20)
+- O logout espera só o POST de registro em andamento (`stopAndDrain`). Se o registro estiver na permissão de notificação ou no token FCM, o drain resolve na hora, e nenhum POST sai depois do stop (`ensureSameEpoch`). A espera antiga consumia o orçamento de 5 s sem proteger nada.
+- O serviço avisa o início do POST pelo callback `onPostStarted`. Não há timers nem sleeps nisso.
+- O aparelho só fica "ativo" quando o token FCM atual é o salvo e está na lista do servidor.
+- Falha inesperada vira motivo `unexpected`, retentado em 5, 15 e 30 s. `push_unavailable` fica só para falha de token ou de permissão.
+- Cancelamento (`AbortError` ou `CanceledError`) vira `cancelled`: não retenta e não mostra alerta.
+- O alerta de falha de registro é adiado nas telas de plantão e volta ao sair. Alerta que o usuário dispensou não volta.
+- O operador não mostra alerta de falha de registro (decisão do PO); só registra no log.
+- No logout, com aparelho registrado e sem refresh válido, o resultado é erro com o toast "será liberado no próximo login". Sem aparelho registrado, o logout é sucesso.
+- O app não chama mais `DELETE /devices/<id>/`. A rota continua no ERP para apps antigos (`TODO(cloudpark-erp#739)`).
+- Deduplicação do registro do operador: reaproveita a tentativa em andamento só com o mesmo `signal`. Chamada com outro `signal` faz um POST novo, que o abort alcança.
+- PR #155 aprovada pelo rkoball e mesclada em `test` em 2026-10-20. Pendente: validar no aparelho (roteiro de 11 cenários) depois do deploy do ERP #766.
+
 ## Versão mínima e atualização forçada (verificado em 2026-10-14)
 - **App:**
   - O `globalError.interceptor` lê os headers de versão mínima (`MINIMUM_APP_VERSION_HEADERS`) e também trata o status 426 e os códigos `APP_UPDATE_REQUIRED` e afins. Isso abre um diálogo bloqueante "Atualizar aplicativo".
@@ -75,6 +88,8 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 - **Importar o `axios` em tempo de execução pode derrubar a suíte** com `TypeError: Cannot cancel a stream that already has a reader`. O erro vem do adapter `fetch` do axios rodando sobre o `expo/virtual/streams`, e aconteceu em 2026-10-15 num teste de util que importava o `normalizeGlobalHttpError`.
   - Contorno: um helper que só precisa de tipo do axios fica em módulo próprio, com `import type` (ex.: `src/infra/http/isTimeoutError.ts`).
   - Alternativa: usar `jest.mock("@/infra/http/client")`, como fazem os testes de repositório.
+- **Checar se um teste de regressão falha sem a correção, sem perder o trabalho:** reverter só os arquivos de produção para o commit anterior (`git show <pai>:<arquivo> > <arquivo>`), manter os testes novos, rodar a suíte e restaurar com `git checkout HEAD -- <arquivos>`. Se o teste importa um export que o código antigo não tem, a falha não prova o comportamento; é preciso um teste de comportamento.
+- Teste que dá timeout de 5 s com o código antigo pode estar esperando uma promessa que nunca resolve, e não falhando numa asserção. Ver o motivo antes de concluir.
 
 ## Relacionados
 - [[732 - Falar com Suporte (técnico)]]
