@@ -2,6 +2,7 @@
 
 - Issue: https://github.com/cloudpark/cloudpark-erp/issues/739
 - Repo/branch ERP: `cloudpark/cloudpark-erp`, branch `cloudpark/cloudpark-erp/739`. **Mescladas em 2026-10-20**, aprovadas pelo rkoball: ERP [#766](https://github.com/cloudpark/cloudpark-erp/pull/766) em `master` (merge `b059c0ce`); app ParkPro [#155](https://github.com/cloudpark/cloudpark-parkpro/pull/155) em `test`.
+- Réplica na release `26.10.16`: PR [#769](https://github.com/cloudpark/cloudpark-erp/pull/769), branch `cloudpark/cloudpark-erp/739-26.10.16`, criada a partir de `origin/26.10.16` com os 30 commits da #766 por cherry-pick. O diff ficou idêntico ao da #766 (22 arquivos, +2613/-305). Só assignee, sem reviewer e sem checklist na issue (2026-10-20). Método em [[Git - replicar PR mesclada em outra branch base]].
 - Checklist de finalização postado na issue em 2026-10-19 (comentário novo, sem edição de outro).
 - Decisões e justificativas: [[2026-10-14 - Alarme de plantão e auditoria de acesso (#739)]]
 - Notas técnicas: [[CloudPark ERP - Notas técnicas]], [[ParkPro - Notas técnicas]]

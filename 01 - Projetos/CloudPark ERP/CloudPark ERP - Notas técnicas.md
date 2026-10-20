@@ -5,8 +5,9 @@ Conhecimento do projeto `cloudpark/cloudpark-erp` confirmado em sessões de trab
 ## Convenções do repo (confirmadas pelo usuário)
 - Branch `cloudpark/cloudpark-erp/<nº issue>`; commit `<branch>: <tipo>(escopo): <descrição>` em português (ex.: `cloudpark/cloudpark-erp/#732: feat(support): ...`).
 - Sem linha de atribuição de IA em commits/PRs; autor e committer com o e-mail corporativo.
-- PR: assignee = autor, reviewer = rkoball; ao abrir, comentar na issue o "Checklist de Finalização de Tarefa".
-- PR do ERP tem base `master`. Comparar sempre com `origin/master`: o `master` local pode estar atrasado e mostrar centenas de arquivos que não são da branch (2026-10-19).
+- PR para `master`: assignee = autor, reviewer = rkoball; ao abrir, comentar na issue o "Checklist de Finalização de Tarefa".
+- PR de release (ex.: base `26.10.16`, com alterações já mescladas no `master`): só assignee. Sem reviewer e sem comentário do checklist na issue (regra do usuário, 2026-10-20, PR #769; já vinha da PR #744 em 2026-10-14).
+- Comparar sempre com `origin/master`: o `master` local pode estar atrasado e mostrar centenas de arquivos que não são da branch (2026-10-19).
 - Marcador de revisão do `/revisar` aponta para o commit revisado. Commit posterior só de teste deve ser citado na descrição da PR. Se o checklist já existe (por exemplo, depois de ajustes do review), editar o comentário existente e acrescentar só o que mudou para o produto. Não postar um segundo checklist, para não confundir o QA (escolha do usuário em 2026-10-15, #686).
 - Atualizar PR já revisada com o master: o usuário escolheu **rebase + force push** (`--force-with-lease`), não merge, mesmo avisado de que a revisão perde o diff incremental (#726, 2026-10-16).
 - Código sem comentários óbvios; planejar respeitando a arquitetura existente e levantar dúvidas em perguntas numeradas.
