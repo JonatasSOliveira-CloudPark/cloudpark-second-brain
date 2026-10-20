@@ -17,6 +17,7 @@ Abrangência: **processo** (repos ParkPro e ERP, fluxo `stable` → mãe → `<n
 - Separar os commits por assunto: `git log --format='%h|%s' <mãe>..<atividade>`. Os que repetem o assunto de um commit da mãe são replays do rebase; os novos são o trabalho pendente.
 - Simular o merge: `git merge-tree --write-tree --name-only <mãe> <atividade>`. Lista os conflitos sem tocar em nada.
 - Testar o cherry-pick num worktree temporário (`git worktree add --detach <caminho> <mãe>`) e remover depois (`git worktree remove --force <caminho>` e `git worktree prune`).
+- Descobrir se a mãe tem um bug de um commit da `test`: `git merge-base --is-ancestor <commit> <mãe>` (sai com 0 se o commit está na mãe). Confirmar também se o arquivo e a chamada que causam o bug existem na mãe (`git cat-file -e <mãe>:<arquivo>` e `git show <mãe>:<arquivo> | grep <função>`). Caso de 2026-10-20: a mãe do #739 não tinha o bug, então a correção foi só para a `test` (ver [[ParkPro - Notas técnicas]]).
 
 ## Relacionados
 - [[ParkPro - Notas técnicas]]

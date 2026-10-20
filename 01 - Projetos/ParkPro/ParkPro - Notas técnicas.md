@@ -90,6 +90,8 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
   - Alternativa: usar `jest.mock("@/infra/http/client")`, como fazem os testes de repositório.
 - **Checar se um teste de regressão falha sem a correção, sem perder o trabalho:** reverter só os arquivos de produção para o commit anterior (`git show <pai>:<arquivo> > <arquivo>`), manter os testes novos, rodar a suíte e restaurar com `git checkout HEAD -- <arquivos>`. Se o teste importa um export que o código antigo não tem, a falha não prova o comportamento; é preciso um teste de comportamento.
 - Teste que dá timeout de 5 s com o código antigo pode estar esperando uma promessa que nunca resolve, e não falhando numa asserção. Ver o motivo antes de concluir.
+- **Mock de módulo incompleto quebra o teste antes da asserção.** Se o `jest.mock` não expõe uma função que o código chama, o erro aparece como `X is not a function`, e o teste falha mesmo com o código certo. Ao adicionar uma chamada nova a um módulo mockado, atualizar o mock dos testes que importam esse módulo. Caso: `clearRenewal` em `logoutInBackground.test.tsx` (2026-10-20, PR #157).
+- Em 2026-10-20 o `pnpm typecheck` da `test` tinha erros em 6 arquivos de teste e um tipo em `react-native-gifted-chat` (ver a nota da lib). Não são de código de produção. Ficaram para outra atividade.
 
 ## Relacionados
 - [[732 - Falar com Suporte (técnico)]]
