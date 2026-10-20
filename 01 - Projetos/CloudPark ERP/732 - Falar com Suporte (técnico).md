@@ -56,3 +56,8 @@ Migrations no `support`: `0102` a `0105`.
   - Abertura pela visita com pátio fora do cadastro: liberar, desde que a visita seja do técnico. O usuário pediu uma verificação de segurança "inteligente", ainda sem definição do que é. Pendência em aberto.
   - Empresas existentes começam sem pátios cadastrados.
   - Restrição provisória com o QA: pergunta em aberto. O usuário não entendeu a formulação; reformular antes de decidir.
+
+## Branches (estado em 2026-10-20)
+- Mãe do app: `cloudpark/cloudpark-erp/732`, com só os commits da atividade (sem merge da `test`).
+- PR do app: `cloudpark/cloudpark-erp/732-test` → `test` (cloudpark-parkpro#156), com merge da `test` e as correções da revisão (`47d3831`, `1fbb200`, `46a1baa`).
+- As correções não vão para a mãe enquanto o #150 não estiver na `stable`. Depois disso, a mãe é reconstruída a partir da `stable` (mesma regra da #739).
