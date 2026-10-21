@@ -38,3 +38,11 @@ Abrangência: **projeto CloudPark ERP** (suporte, fieldcontrol, ParkPro). Contex
   - Justificativa: o ticket do técnico segue o padrão do ticket de cliente (solicitante de fora, pelo app, conversando no chat). O bloco fixo é o padrão do ticket interno. Sem a mensagem, a fila não marcaria "↙ Técnico aguardando", o app teria de exibir a `description` à parte, e o bloco já aparecia como "Agente - Atendente ERP".
 - **Identificação:** badge "Técnico" (ícone de ferramenta) no card e no cabeçalho; badge "N/A" de artigo escondido no ticket do técnico.
 - **Painéis sem artigo:** Soluções mostra "Nenhum artigo vinculado"; SLA mostra "Não se aplica a ticket de técnico" enquanto não há prazos. Se o atendente classificar o ticket, os prazos aparecem normalmente.
+
+## 2026-10-20 — Revisão da PR #768
+- **Tipo de requisição:** o chamado do técnico não tem tipo de requisição (confirmado pelo PO/QA). Relatórios por tipo não se aplicam a ele.
+- **Plantão:** o plantonista é acionado na janela de plantão, mas o chamado não vira plantão: sem marcação `is_on_call` e sem aceite de cobrança.
+- **Técnico sem empresa:** login e renovação de token ficam liberados. O bloqueio (`TECHNICIAN_WITHOUT_COMPANY`) vale só nas rotas de chamado; visitas seguem liberadas.
+  - Revisão pediu bloqueio global; a decisão foi limitar às rotas de chamado (resposta publicada na PR).
+  - Bloqueio global fica com TODO, para ativar depois da publicação da versão nova do app (pendência da #739).
+- **Dependência do app:** o app (cloudpark-parkpro#156) precisa ler `refresh_token` na renovação; enquanto não sair, o ERP só devolve o campo.

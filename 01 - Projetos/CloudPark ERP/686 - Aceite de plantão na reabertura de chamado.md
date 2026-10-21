@@ -3,6 +3,7 @@
 - Issue: https://github.com/cloudpark/cloudpark-erp/issues/686
 - PR ERP: https://github.com/cloudpark/cloudpark-erp/pull/700 (branch `cloudpark/cloudpark-erp/686`)
 - PR app: https://github.com/cloudpark/cloudpark-parkpro/pull/145
+- PR app para `release_candidate`: https://github.com/cloudpark/cloudpark-parkpro/pull/158 (branch `cloudpark/cloudpark-erp/686-rc`, mesclada em 2026-10-21). A branch fica no repo `cloudpark-parkpro`, não no ERP; o ERP não tem branch `release_candidate`.
 - Notas técnicas: [[CloudPark ERP - Notas técnicas]]
 - Situação em 2026-10-16: ajustes da 2ª rodada de review enviados (`58067b0e`, `7f88392c`); o usuário pediu a nova revisão ao rkoball.
 

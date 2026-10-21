@@ -38,6 +38,7 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 - Um único `axiosClient`. O token vem de `getActiveSession()`, com prioridade suporte > técnico > operador.
 - **Rota de outra persona com o token errado abre o diálogo global de erro** (`globalError.interceptor`) e não falha em silêncio. Toda chamada precisa respeitar a persona ativa.
 - O MQTT (`src/infra/mqtt/client.ts`) conecta sem credencial por persona. O técnico usa os mesmos tópicos de ticket.
+- **Renovação do técnico precisa aceitar o `refresh_token` novo.** O ERP devolve `access_token` e `refresh_token` no refresh. O ramo do técnico em `AuthInterceptor.ts` faz `setTokens({...session.tokens, ...result.value})`, como o do operador. Se ele só copiar o `access_token`, o técnico perde o `technician_id` e o chat trava (bloqueante do rkoball na PR #156, 2026-10-20). O ramo de suporte ainda copia só o `access_token`: não verificado se o ERP rotaciona o refresh do suporte.
 
 ## Registro de dispositivo e logout (verificado em 2026-10-14, #739)
 - **Logout não desvincula o aparelho no servidor.** Os hooks `supportSessionPersistence` e `fieldTechSessionPersistence` chamam `DELETE /devices/<id>/` depois que o `logout()` do store zerou os tokens → requisição sem `Authorization`, recusada; o `finally` limpa o local mesmo assim. No operador/dashboard (`sessionPersistence` + `Device.service`), o `deleteDevice` nem chama o servidor.
@@ -46,6 +47,7 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 - O `deleteDevice` apaga também o `device_uuid` salvo, gerando UUID novo a cada login. A decisão é mantê-lo estável; ver [[2026-10-14 - Alarme de plantão e auditoria de acesso (#739)]].
 - **Efeito visível:** a rota `/support/devices/<id>/` não está em `AUTH_ENDPOINT_PATTERNS`, então o 401 do `DELETE` sem token abre o diálogo "Sessão expirada / Entrar novamente" depois de **todo** logout do plantão.
 - **O técnico já desvinculava no botão "Sair da conta":** `VisitList` chama `deleteDevice` antes do `logout()`. Os outros caminhos de logout do técnico não fazem isso.
+- Na branch da 732 (2026-10-21), o logout da `Home` usa `useSessionLogout(fieldTechSessionLogout)`, como a `VisitList` da `test`. A branch mãe ainda tem o hook antigo (`deviceId` e `deleteDevice`) até o #739 chegar à `stable`.
 - **Os hooks de persistência também rodam no boot sem sessão,** porque o bootstrap chama `logout()`. O operador perdia o `parkpro.device_uuid` a cada abertura do app.
 - O `listenTokenRefresh` do plantão não devolve unsubscribe. Cada login acumula um listener, e depois do logout ele faz POST sem auth.
 - O técnico (`FieldTechStack`) ignora o resultado do registro.
@@ -90,7 +92,7 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
   - Alternativa: usar `jest.mock("@/infra/http/client")`, como fazem os testes de repositório.
 - **Checar se um teste de regressão falha sem a correção, sem perder o trabalho:** reverter só os arquivos de produção para o commit anterior (`git show <pai>:<arquivo> > <arquivo>`), manter os testes novos, rodar a suíte e restaurar com `git checkout HEAD -- <arquivos>`. Se o teste importa um export que o código antigo não tem, a falha não prova o comportamento; é preciso um teste de comportamento.
 - Teste que dá timeout de 5 s com o código antigo pode estar esperando uma promessa que nunca resolve, e não falhando numa asserção. Ver o motivo antes de concluir.
-- **Mock de módulo incompleto quebra o teste antes da asserção.** Se o `jest.mock` não expõe uma função que o código chama, o erro aparece como `X is not a function`, e o teste falha mesmo com o código certo. Ao adicionar uma chamada nova a um módulo mockado, atualizar o mock dos testes que importam esse módulo. Caso: `clearRenewal` em `logoutInBackground.test.tsx` (2026-10-20, PR #157).
+- **Mock de módulo incompleto quebra o teste antes da asserção.** Se o `jest.mock` não expõe uma função que o código chama, o erro aparece como `X is not a function`, e o teste falha mesmo com o código certo. Ao adicionar uma chamada nova a um módulo mockado, atualizar o mock dos testes que importam esse módulo. Caso: `clearRenewal` em `logoutInBackground.test.tsx` (2026-10-20, PR #157). Outro caso: `getTokenAccount` em `fieldTechRefresh.test.ts`, que o `AuthInterceptor` passou a chamar (2026-10-21).
 - Em 2026-10-20 o `pnpm typecheck` da `test` tinha erros em 6 arquivos de teste e um tipo em `react-native-gifted-chat` (ver a nota da lib). Não são de código de produção. Ficaram para outra atividade.
 
 ## Relacionados
