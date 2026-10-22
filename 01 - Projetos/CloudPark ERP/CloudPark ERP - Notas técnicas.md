@@ -8,7 +8,7 @@ Conhecimento do projeto `cloudpark/cloudpark-erp` confirmado em sessões de trab
 - PR para `master`: assignee = autor, reviewer = rkoball; ao abrir, comentar na issue o "Checklist de Finalização de Tarefa".
 - PR de release (ex.: base `26.10.16`, com alterações já mescladas no `master`): só assignee. Sem reviewer e sem comentário do checklist na issue (regra do usuário, 2026-10-20, PR #769; já vinha da PR #744 em 2026-10-14).
 - Comparar sempre com `origin/master`: o `master` local pode estar atrasado e mostrar centenas de arquivos que não são da branch (2026-10-19).
-- Marcador de revisão do `/revisar` aponta para o commit revisado. Commit posterior só de teste deve ser citado na descrição da PR. Se o checklist já existe (por exemplo, depois de ajustes do review), editar o comentário existente e acrescentar só o que mudou para o produto. Não postar um segundo checklist, para não confundir o QA (escolha do usuário em 2026-10-15, #686).
+- Marcador de revisão do `/revisar` aponta para o commit revisado. A label `revisado` só entra depois do `/revisar` das correções finais. Commit posterior só de teste deve ser citado na descrição da PR. Se o checklist já existe (por exemplo, depois de ajustes do review), editar o comentário existente e acrescentar só o que mudou para o produto. Não postar um segundo checklist, para não confundir o QA (escolha do usuário em 2026-10-15, #686).
 - Atualizar PR já revisada com o master: o usuário escolheu **rebase + force push** (`--force-with-lease`), não merge, mesmo avisado de que a revisão perde o diff incremental (#726, 2026-10-16).
 - Código sem comentários óbvios; planejar respeitando a arquitetura existente e levantar dúvidas em perguntas numeradas.
 
@@ -49,6 +49,7 @@ Conhecimento do projeto `cloudpark/cloudpark-erp` confirmado em sessões de trab
 - Frontend React: o ESLint do projeto não cobre `.ts/.tsx`; o `tsc --noEmit` tem ~39 erros pré-existentes — comparar a contagem antes/depois e rodar `vite build` com `--outDir` fora do repo. Worktree usa symlink de `frontend_react/node_modules` para o checkout principal.
 
 ## Ambiente local (worktree e rede) — confirmado em 2026-10-15
+- Procedimento de worktree e de banco com dump de produção: `docs/infra/worktrees.md` (no repo do ERP).
 - OpenBao/`manage.py` com timeout costuma ser o NetBird em `NeedsLogin` (login do peer expirou). `netbird up` refaz o SSO sem `down`; depois, `bao-login` se o token do OpenBao também expirou.
 - Worktree sem `.env`: rodar `CCSWITCH_REPO_PATH=<checkout principal> CCSWITCH_SESSION_NAME=<nome> ./scripts/worktree-setup.sh` (copia o `.env` e cria os links). Sem `backups/prod-dumps/producao.dump`, o setup **não** cria banco e o `.env` fica apontando para o `cloudpark_erp` compartilhado — não rodar `migrate` de branch nele.
 - Banco próprio sem dump (feito à mão na #732; automação pendente): `pg_dump -Fc` do `DATABASE_URL` do checkout principal → `scripts/restore-prod-dump.sh <arquivo> <nome>` (Postgres isolado na 5434, ajusta o `.env`), gravando antes o nome em `.worktree-proddump-db` (`worktree_proddump_record_db_name`) para o archive limpar depois.

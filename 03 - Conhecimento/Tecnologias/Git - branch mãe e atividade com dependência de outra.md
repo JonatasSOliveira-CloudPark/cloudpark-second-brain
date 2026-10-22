@@ -22,6 +22,11 @@ Abrangência: **processo** (repos ParkPro e ERP, fluxo `stable` → mãe → `<n
 - Testar o cherry-pick num worktree temporário (`git worktree add --detach <caminho> <mãe>`) e remover depois (`git worktree remove --force <caminho>` e `git worktree prune`).
 - Descobrir se a mãe tem um bug de um commit da `test`: `git merge-base --is-ancestor <commit> <mãe>` (sai com 0 se o commit está na mãe). Confirmar também se o arquivo e a chamada que causam o bug existem na mãe (`git cat-file -e <mãe>:<arquivo>` e `git show <mãe>:<arquivo> | grep <função>`). Caso de 2026-10-20: a mãe do #739 não tinha o bug, então a correção foi só para a `test` (ver [[ParkPro - Notas técnicas]]).
 
+## Caso 723 (2026-10-22): branch da atividade preservada e PR em branch nova
+- A branch da atividade (`cloudpark/cloudpark-erp/723`) ficou como histórico e foi publicada. Para o PR, criou-se `cloudpark/cloudpark-erp/723-test` com `git switch -c <723-test> origin/test` e cherry-pick dos commits. Não houve conflito.
+- Para corrigir um commit ainda não publicado: `git commit --fixup=<hash>` e `GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>`. Não reescrever commit que já foi publicado.
+- Antes do PR, rodar typecheck e os testes da branch nova, porque a base mudou e pode ter código diferente.
+
 ## Relacionados
 - [[ParkPro - Notas técnicas]]
 - [[CloudPark ERP - Notas técnicas]] (rebase de branch longa com trecho movido)

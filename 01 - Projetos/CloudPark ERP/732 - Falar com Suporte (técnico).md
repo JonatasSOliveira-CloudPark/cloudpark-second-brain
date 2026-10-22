@@ -46,6 +46,7 @@ Migrations no `support`: `0102` a `0105`.
   - Rotas do app `media` com `AllowAny` no host público (`api/v1/media/media-files/`, `api/v1/tickets/<id>/media/`).
   - MQTT sem autenticação/ACL: qualquer cliente assina/publica nos tópicos de ticket.
   - `TicketCreateSerializer` do cliente (ParkPro) não confere se o pátio é do usuário; `TicketOpeningCheckView` duplica a regra de time sem o redirecionamento fora do horário.
+  - #723 (vídeo no chat): o checklist usa o mesmo endpoint de upload de media acima; ver [[723 - Vídeo que não reproduz no chat]].
 
 ## Dependências
 - **Nova dependência (decidida pelo usuário em 2026-10-16):** as empresas de técnico (`fieldcontrol.TechnicianCompany`) precisarão ter cadastrados os pátios a que têm acesso. A listagem de pátios que o técnico seleciona no app (`GET field/parkings/`) passa a sair desse cadastro da empresa, e não mais de "todos os pátios" (decisão provisória, aguardando o QA).

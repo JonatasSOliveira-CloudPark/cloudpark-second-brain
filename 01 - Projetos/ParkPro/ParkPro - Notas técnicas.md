@@ -18,12 +18,20 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
   - Envio e anexo usam `CHAT_SEND_GLOBAL_ERRORS`, que suprime o modal global também em 5xx.
   - Aprendizados: [[App mobile - fila de envio com reenvio automático]].
 - O `TicketErrorFactory` troca a mensagem do 409 `ACTIVE_TICKET_EXISTS` por um texto fixo ("artigo nesse pátio"). Num fluxo novo, use a mensagem que o backend devolve.
+- Vídeo que não reproduz (#723): conversão para H.264 720p em andamento no PR cloudpark-parkpro#161 (branch `cloudpark/cloudpark-erp/723-test`, base `test`). Confirmado no código do PR: o picker da galeria usa `videoExportPreset` H.264 720p (`chatMediaPicker.options.ts`) e a câmera grava com `videoCodec: "h264"`; a mensagem do commit diz que a exportação vale no iOS e o Android segue com o arquivo original. Decisão: [[2026-10-22 - Vídeo que não reproduz no chat (#723)]]; navegador: [[Vídeo HEVC em MOV - reprodução e download no navegador]].
 
 ## Bug conhecido: status do chat apagado por evento de SLA
 - **Sintoma:** com o chat do cliente aberto, `status` e `status_label` do ticket ficam `undefined` no `ticket.store`. Isso aparece no chat e na `TicketInfo`, que usa o mesmo store, até recarregar.
 - **Causa:** o ERP publica no `user/:userId/tickets/status` o evento `ticket_sla_states_updated`, que vem sem `status` (task `update_sla_states_task`, só para ticket não `ENDED`, quando o estado de SLA muda). O `useTicketStatus` não filtra `event_type` e aplica qualquer evento; o `TicketStatusEventDTO` só declara `ticket_closed` e `ticket_reopened`.
 - **Impacto:** o envio de mensagens não é liberado indevidamente, porque o evento só chega para ticket aberto.
 - **Correção:** aplicar só os eventos que trazem status: `ticket_closed`, `ticket_reopened` e `ticket_end_pause` (fim da pausa, que o cliente já aplicava corretamente). Ignorar `ticket_sla_states_updated`. Feita em 2026-10-15 na branch `cloudpark/cloudpark-erp/732` (`TicketStatusService` + `isTicketStatusEvent`, commit `240398c`), ainda sem PR.
+
+## Vídeo no chat (erp#723, 2026-10-22)
+- Decisão: [[2026-10-22 - Vídeo do chat em H.264 720p (erp#723)]].
+- Código: `Chat/components/chatMediaPicker.constants.ts` (preset da galeria no iOS), `Chat/components/Actions.tsx` (aviso de falha) e `CameraOverlay/index.tsx` (H.264 e 720p só no modo vídeo).
+- Estado: PR [#161](https://github.com/cloudpark/cloudpark-parkpro/pull/161) para `test`. Teste em aparelho pendente. Causa ainda não confirmada (falta o `ffprobe` do #2330).
+- Libs: [[expo-image-picker - preset de exportação de vídeo (iOS)]] e [[react-native-vision-camera - gravação em H.264 e formato 720p]].
+- Mock de teste com JSX: [[Jest - jest.mock com JSX e NativeWind]].
 
 ## MQTT
 - O ERP publica em `parkpro-{stage}/ticket/:ticketId/status` os eventos `ticket_closed`, `ticket_reopened`, `ticket_end_pause` e `ticket_sla_states_updated`. Quem consome esse tópico tem de filtrar por `event_type`.
