@@ -4,8 +4,9 @@ Abrangência: **processo** (repos `cloudpark/cloudpark-erp` e `cloudpark/cloudpa
 
 ## Nome e base
 - A atividade parte da `stable`.
-- O nome segue `cloudpark/<repo-de-origem-da-issue>/<n>`. O repo é o da **issue**, não o repo onde o código muda. Ex.: issue #736 nasce no ERP, então a branch do app é `cloudpark/cloudpark-erp/736-<slug>`.
-- O prefixo dos commits sai do nome, com `#` antes do número: `cloudpark/cloudpark-erp/#736: feat(...)`.
+- O nome segue `cloudpark/<repo-de-origem-da-issue>/<n>-<slug>`. O slug é um resumo curto em kebab-case, minúsculas e sem acentos. O repo é o da **issue**, não o repo onde o código muda. Ex.: issue #736 nasce no ERP, então a branch do app é `cloudpark/cloudpark-erp/736-mascarar-horario-visita`. Atualizado em 2026-10-28 (antes o padrão era só `<n>`; as branches antigas continuam válidas).
+- As branches derivadas são `<branch>-test` e `<branch>-rc`.
+- O prefixo dos commits sai do nome, com `#` antes do número e sem o slug: `cloudpark/cloudpark-erp/#736: feat(...)`.
 
 ## Branch que nasce de HEAD errado (worktree)
 - A branch criada pelo ambiente de worktree pode partir de um HEAD que não é a `stable`. Caso de 2026-10-22: o HEAD estava 110 commits à frente da `stable` e trazia merges de outras atividades.

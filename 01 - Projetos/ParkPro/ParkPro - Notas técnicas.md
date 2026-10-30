@@ -112,6 +112,27 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 - **Mock de módulo incompleto quebra o teste antes da asserção.** Se o `jest.mock` não expõe uma função que o código chama, o erro aparece como `X is not a function`, e o teste falha mesmo com o código certo. Ao adicionar uma chamada nova a um módulo mockado, atualizar o mock dos testes que importam esse módulo. Caso: `clearRenewal` em `logoutInBackground.test.tsx` (2026-10-20, PR #157). Outro caso: `getTokenAccount` em `fieldTechRefresh.test.ts`, que o `AuthInterceptor` passou a chamar (2026-10-21).
 - Em 2026-10-20 o `pnpm typecheck` da `test` tinha erros em 6 arquivos de teste e um tipo em `react-native-gifted-chat` (ver a nota da lib). Não são de código de produção. Ficaram para outra atividade.
 
+## Visualizador de imagem do chat (#774, 2026-10-26)
+- Arquivos: `src/presentation/components/organism/Chat/components/ImageViewer.tsx` (gestos, carregamento e erro), `CustomMessageImage.tsx` (miniatura) e `utils/imageZoom.utils.ts` (limites e cálculos puros).
+- O `Modal` é o nativo do React Native. O `GestureHandlerRootView` precisa ficar dentro dele.
+- `Gesture.Pan().maxPointers(1)`: a pinça fica com dois dedos e o arraste com um, para não brigarem.
+- No iOS, o `Modal` mantém o conteúdo na tela durante o fade de saída (`_shouldShowModal` usa `isRendered`). Um reset no fechamento faz a imagem voltar ao centro durante a animação. O reset deve acontecer só ao abrir (`if (!visible) return;`).
+- Mensagem sem `image`: o toque fica desabilitado.
+- A miniatura e o visualizador usam a mesma URL do anexo. Não há campo de thumbnail. Se a URL for uma versão reduzida, o zoom fica borrado. Não confirmado.
+- Decisão: [[2026-10-26 - Visualizador de imagem do chat com gestos manuais (#774)]].
+
+## Versão mínima e atualização em desenvolvimento (2026-10-28)
+- `EXPO_PUBLIC_STAGE` define o adaptador de atualização: `dev` usa o mock, o resto consulta a loja. O mesmo valor define o tópico MQTT (`parkpro-${stage}`), então não serve para pular a verificação.
+- Para pular a verificação só em desenvolvimento, use `EXPO_PUBLIC_SKIP_APP_VERSION_CHECK=true` no `.env` local, com `__DEV__` verdadeiro. Ver [[2026-10-28 - Flag para pular verificação de versão só em desenvolvimento]].
+- Um build instalado (QA ou release) tem o JavaScript embutido e não lê o `.env` do computador. Para mudanças de variável valerem no aparelho, é preciso gerar um build novo.
+- Com `pnpm start`, o Expo grava as variáveis `EXPO_PUBLIC_*` no bundle. Depois de mudar o `.env`, rode `pnpm start -c`.
+- Vários worktrees do mesmo repo podem ter servidores Metro na porta 8081. Confira qual pasta está servindo antes de depurar.
+
+## Testes: limite de memória e mock do reanimated (2026-10-28)
+- Sem limite de workers, o jest sobe até um processo por núcleo. Numa máquina de 7 GB, isso estourou a memória e travou o computador.
+- Para rodar com segurança localmente: `systemd-run --user --scope -q -p MemoryMax=4G -p MemorySwapMax=0 env NODE_OPTIONS=--max-old-space-size=1024 pnpm exec jest -w 3 <caminhos>`.
+- Mock de `useSharedValue` que devolve um objeto novo a cada render faz qualquer efeito com esse valor nas deps rodar a cada render, e um reset feito nesse efeito apaga o estado logo depois de ser definido. Use um valor estável dentro da factory do mock (ex.: `useState` dentro dela).
+
 ## Relacionados
 - [[732 - Falar com Suporte (técnico)]]
 - [[739 - Alarme de plantão em celular compartilhado]]
