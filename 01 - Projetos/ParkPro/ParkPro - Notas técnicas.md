@@ -29,7 +29,7 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 ## Vídeo no chat (erp#723, 2026-10-22)
 - Decisão: [[2026-10-22 - Vídeo do chat em H.264 720p (erp#723)]].
 - Código: `Chat/components/chatMediaPicker.constants.ts` (preset da galeria no iOS), `Chat/components/Actions.tsx` (aviso de falha) e `CameraOverlay/index.tsx` (H.264 e 720p só no modo vídeo).
-- Estado: PR [#161](https://github.com/cloudpark/cloudpark-parkpro/pull/161) para `test`. Teste em aparelho pendente. Causa ainda não confirmada (falta o `ffprobe` do #2330).
+- Estado: PR [#161](https://github.com/cloudpark/cloudpark-parkpro/pull/161) mergeada em `test` (2026-10-23). RC: PR [#169](https://github.com/cloudpark/cloudpark-parkpro/pull/169) para `release_candidate` aberta (2026-10-30), sem revisor. Teste em aparelho pendente. Causa ainda não confirmada (falta o `ffprobe` do #2330).
 - Libs: [[expo-image-picker - preset de exportação de vídeo (iOS)]] e [[react-native-vision-camera - gravação em H.264 e formato 720p]].
 - Mock de teste com JSX: [[Jest - jest.mock com JSX e NativeWind]].
 

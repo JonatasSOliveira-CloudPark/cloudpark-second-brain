@@ -41,3 +41,8 @@ Abrangência: **processo** (fluxo de release, repos `cloudpark/cloudpark-erp` e 
 - O merge traz para a RC itens de outras atividades que entraram na `test` pelo merge do head (ex.: token de tracking no `eas.json`). Listar os arquivos antes de abrir a PR e sinalizar no corpo.
 - Typecheck: comparar a contagem de erros com a que a PR registrou como preexistente na `test`, não só "passou".
 - Referência: [[732 - Falar com Suporte (técnico)]].
+
+## Caso 723-rc (2026-10-30): base avançou, comparar pelo merge-base
+- Com o `stable` (ou a `test`) à frente da base da atividade, `git diff --name-only origin/<base> origin/<atividade>` lista arquivos de outras tasks. Não é o que a atividade mudou.
+- Para pegar só a atividade: `git merge-base origin/<base> origin/<atividade>` e, a partir dele, `git rev-list --reverse --no-merges <merge-base>..origin/<atividade>` (commits) e `git diff --name-only <merge-base> origin/<atividade>` (arquivos).
+- Caso 723: 4 commits e 6 arquivos. Cherry-pick sobre `origin/release_candidate` sem conflito, com um merge automático em `Actions.tsx`. Conferido com `git diff --stat origin/release_candidate HEAD` (6 arquivos).

@@ -6,6 +6,7 @@ Abrangência: **processo** (repos `cloudpark/cloudpark-erp` e `cloudpark/cloudpa
 - A atividade parte da `stable`.
 - O nome segue `cloudpark/<repo-de-origem-da-issue>/<n>-<slug>`. O slug é um resumo curto em kebab-case, minúsculas e sem acentos. O repo é o da **issue**, não o repo onde o código muda. Ex.: issue #736 nasce no ERP, então a branch do app é `cloudpark/cloudpark-erp/736-mascarar-horario-visita`. Atualizado em 2026-10-28 (antes o padrão era só `<n>`; as branches antigas continuam válidas).
 - As branches derivadas são `<branch>-test` e `<branch>-rc`.
+- Exceção histórica: a atividade erp#723 (2026-10-22) tem a branch `cloudpark/cloudpark-erp/723`, sem slug, criada antes da regra de 2026-10-28. As derivadas `723-test` e `723-rc` seguiram o mesmo nome base, e a skill `promover-rc` aceitou esse nome.
 - O prefixo dos commits sai do nome, com `#` antes do número e sem o slug: `cloudpark/cloudpark-erp/#736: feat(...)`.
 
 ## Branch que nasce de HEAD errado (worktree)

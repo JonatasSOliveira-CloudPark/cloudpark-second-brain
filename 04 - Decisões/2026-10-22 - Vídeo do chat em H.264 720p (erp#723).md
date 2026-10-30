@@ -32,6 +32,10 @@ Abrangência: **projeto ParkPro** (chat de ticket do cliente). Contexto: vídeos
 - Checklist de finalização postado na erp#723. Teste em aparelho pendente.
 - **Causa não confirmada:** falta o `ffprobe` do ticket #2330. Se o vídeo for H.264, a hipótese de HEVC cai e o plano muda.
 
+## Atualizações de estado
+- **2026-10-23:** PR #161 mergeada em `test`.
+- **2026-10-30:** PR [#169](https://github.com/cloudpark/cloudpark-parkpro/pull/169) para `release_candidate` aberta (`cloudpark/cloudpark-erp/723-rc`), sem revisor. Teste em aparelho segue pendente.
+
 ## Relacionados
 - [[ParkPro - Notas técnicas]]
 - [[expo-image-picker - preset de exportação de vídeo (iOS)]]
