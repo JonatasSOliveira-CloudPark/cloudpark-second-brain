@@ -71,8 +71,16 @@ Conhecimento do projeto `cloudpark/cloudpark-erp` confirmado em sessões de trab
 - `unaccent` pode aparecer em `pg_extension` e não ter função: `DROP EXTENSION unaccent; CREATE EXTENSION unaccent;` no banco de teste.
 - Nome do banco de teste = `test_` + nome do banco. Um banco de worktree com nome longo (`cloudpark_erp_proddump_claude_worktree_atividade_732_fdca22`) passa de 63 caracteres e o teste não sobe; rodar os testes com o `.env` principal (banco `test_cloudpark_erp`).
 
+## Edge público, middleware e WAF (verificado em 2026-10-26)
+- Instância pública: CloudFront → Caddy (`docker/caddy/Caddyfile.public`) → Django. O Caddy responde `Forbidden` em texto puro com 403 quando a requisição não traz o header `CLOUDFRONT` com o segredo da distribuição. Essa resposta não chega ao Django, então não aparece nos logs do ERP.
+- `PublicRouteGuardMiddleware` (`core/middleware.py`) responde 403 em JSON com `{"detail": "Authentication credentials were not provided."}` quando `PUBLIC_ROUTE_GUARD_ENABLED` está ligado (o default é desligado) e o host ou o path não passa em `core/route_access.py`.
+- `api/v1/parkpro/` e `api/v2/parkpro/` estão em `PUBLIC_EDGE_PREFIXES`. Pelo código, a rota de foto não deveria ser barrada por esse guard em host público.
+- WAF (AWS): `SizeRestrictions_BODY` está em Count nas distribuições de prod e QA (informado por infra em 2026-10-26). Count só registra, não bloqueia.
+- Pendente: suspeita de `CrossSiteScripting_BODY` (grupo gerenciado) em Block, bloqueando o upload multipart de foto (`/api/v2/parkpro/field/visits/{id}/photos/`). Não confirmada: depende do log do WAF com `terminatingRuleId`. Ver [[Erro HTTP com mensagem genérica - origem fora da view]].
+
 ## Relacionados
 - [[732 - Falar com Suporte (técnico)]]
+- [[Erro HTTP com mensagem genérica - origem fora da view]]
 - [[739 - Alarme de plantão em celular compartilhado]]
 - [[686 - Aceite de plantão na reabertura de chamado]]
 - [[Django + PostgreSQL - recriar índice sem travar a tabela]]

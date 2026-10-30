@@ -133,7 +133,16 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 - Para rodar com segurança localmente: `systemd-run --user --scope -q -p MemoryMax=4G -p MemorySwapMax=0 env NODE_OPTIONS=--max-old-space-size=1024 pnpm exec jest -w 3 <caminhos>`.
 - Mock de `useSharedValue` que devolve um objeto novo a cada render faz qualquer efeito com esse valor nas deps rodar a cada render, e um reset feito nesse efeito apaga o estado logo depois de ser definido. Use um valor estável dentro da factory do mock (ex.: `useState` dentro dela).
 
+## Upload de foto da visita (v2) e erro 403 (verificado em 2026-10-26)
+- A foto do técnico vai para `POST /v2/parkpro/field/visits/{id}/photos/` (`HttpFieldVisit.repository.ts`, `uploadPhoto`). Os demais endpoints de visita usam `/v1/parkpro/field/visits/` (`BASE_PATH`). O caminho v2 está escrito direto no método.
+- `uploadPhoto` não passa `suppressGlobalError`. Por isso, qualquer 403 abre o diálogo global "Acesso negado" (`globalError.interceptor`), além do toast da própria tela.
+- O diálogo usa a mensagem do backend só quando o corpo tem `error` (string, com `code` no topo) ou `error: {code, message}` (`apiErrorPayload.utils.ts`). Sem isso, aparece o texto padrão de `Forbidden`.
+- O toast de `PhotoDescription` usa `getPhotoUploadErrorMessage`. Sem `code` nem `error` no corpo, mostra "Erro ao enviar foto" com a mensagem técnica do Axios ("Request failed with status code 403").
+- Os 403 que a view de foto do ERP devolve sempre trazem `error` e `code: "FORBIDDEN"` (`fieldcontrol/views.py`). Logo, um 403 com o texto genérico não veio dessa view. Ver [[Erro HTTP com mensagem genérica - origem fora da view]].
+- Pendente: o 403 do upload da visita 53 em 2026-10-26, às 16:23, teve esse formato. A suspeita é o WAF do edge (`CrossSiteScripting_BODY` em Block). Não confirmada: depende do log do WAF com `terminatingRuleId`. Ver [[CloudPark ERP - Notas técnicas]], seção "Edge público, middleware e WAF".
+
 ## Relacionados
 - [[732 - Falar com Suporte (técnico)]]
 - [[739 - Alarme de plantão em celular compartilhado]]
 - [[CloudPark ERP - Notas técnicas]]
+- [[Erro HTTP com mensagem genérica - origem fora da view]]
