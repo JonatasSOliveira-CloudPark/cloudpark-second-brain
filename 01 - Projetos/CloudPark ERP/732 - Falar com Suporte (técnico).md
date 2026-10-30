@@ -37,6 +37,11 @@ Migrations no `support`: `0102` a `0105`.
 - Push com `--force-with-lease` em `c475ab18` (fix de fake de teste do alarme). Testes: 709 rodados; restam só as 2 falhas antigas de `parkpro`.
 - Stash `732-env-config-rebase` guarda as alterações de ambiente do worktree; backup em `backup/732-pre-rebase-2`.
 
+## Estado em 2026-10-23
+- PR [#780](https://github.com/cloudpark/cloudpark-erp/pull/780) (seleção de pátios no admin, correção de `sender_position_label` nulo) mesclada no master em 23/10, aprovada pelo rkoball.
+- Réplica para a release: PR [#784](https://github.com/cloudpark/cloudpark-erp/pull/784) para `26.10.16`, branch `cloudpark/cloudpark-erp/732-selecao-26.10.16`, sem reviewer. Testes dessa branch ainda não rodaram (OpenBao fora do ar; NetBird sem sessão).
+- Pendente: rodar a suíte na branch de release e atualizar a descrição da #784; checklist da #732 (ainda diz que a PR está aberta).
+
 ## Pendências
 - Release `26.10.16`: réplica da #768 na PR [#773](https://github.com/cloudpark/cloudpark-erp/pull/773), da branch `cloudpark/cloudpark-erp/732-26.10.16` (um commit `34d3b10b`). Testes: 709, só as 2 falhas antigas de `parkpro`.
 - Pendente: atualizar o checklist da issue (ainda diz que a PR está aberta e com revisão pendente) e definir a ordem de release (ERP antes do app).
@@ -72,3 +77,9 @@ Migrations no `support`: `0102` a `0105`.
 - PR do app: `cloudpark/cloudpark-erp/732-test` → `test` (cloudpark-parkpro#156), mesclada em `test` em 2026-10-21 pelo usuário. A branch da PR ficou com o merge da `test` (`ce2a85a`), resolvido com os três conflitos aprovados. A aprovação do rkoball é sobre `46a1baa`, anterior a esse merge.
 - Só na `732-test` por depender do #150 ou da #739: o merge da `test` e o teste de presença `46a1baa`. A mãe não recebeu nada novo em 2026-10-21, porque os ajustes do merge dependem de código da #739 (`useSessionLogout`) e da #686 (normalização de erro do `Ticket.error.ts`), que não estão na `stable`. Quando o #150 e a #739 chegarem à `stable`, a mãe é reconstruída a partir da `stable` (mesma regra da #739).
 - Pendente: teste em aparelho e ordem de release (ERP #768 em produção antes das lojas, conforme a revisão do rkoball).
+
+## Estado em 2026-10-23 (ParkPro RC)
+- PR [#163](https://github.com/cloudpark/cloudpark-parkpro/pull/163) `cloudpark/cloudpark-erp/732-rc` → `release_candidate`, sem reviewer, mesclada em 2026-10-23 às 18:24 UTC (merge `2264664`). A RC passou de 2.1.1 para 2.2.0.
+- Base: a própria RC, com o head da #156 (`ce2a85a`) por merge. Ver [[Git - replicar PR mesclada em outra branch base]] (caso 732-rc).
+- Ordem de release: ERP #768 precisa estar em produção antes das lojas.
+- Hipótese a verificar: em `src/domain/errors/Ticket.error.test.ts`, a `test` (após `74738b4`, "reverter formatação") pode ter perdido os testes da #686 que a RC mantém. Confirmar antes de fechar a atividade.

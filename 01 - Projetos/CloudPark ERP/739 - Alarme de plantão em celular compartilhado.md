@@ -80,6 +80,8 @@ Branch local, **nada enviado ao remoto**, sem PR. Histórico do dia em [[2026-10
 - PR mesclada em `test` em 2026-10-20. Os passos e commits do app estão em [[ParkPro - Notas técnicas]].
 - Revisão do `/revisar` sobre `53c4d54` sem bloqueantes. Em 2026-10-20 o rkoball aprovou a PR, com duas sugestões não bloqueantes (drain do logout e deduplicação do operador). Ambas foram aplicadas no commit `3975e98` e respondidas nas threads. Em aberto antes do merge: deploy do ERP #766 e validação no aparelho (roteiro de 11 cenários, ainda não feito).
 - **Branch mãe `cloudpark/cloudpark-erp/739`:** em `187d9e9`, com o doc temporário `c1a723e` (`docs/739-mae-dependencia-150.md`). Não recebe as 6 correções novas do #739 enquanto elas dependerem do #150 (chat), que ainda não está na `stable`. Quando estiver, reconstruir a mãe a partir da `stable` com só os commits `#739` e remover o doc.
+- **Promoção para RC (2026-10-23):** branch `cloudpark/cloudpark-erp/739-rc` a partir de `origin/release_candidate`, com os 45 commits `#739` da PR #155 aplicados por cherry-pick, sem conflito. PR [#162](https://github.com/cloudpark/cloudpark-parkpro/pull/162) para `release_candidate`, **mesclada em 2026-10-23**, só assignee, sem reviewer. Comentário na issue ERP #739 citando só a PR do RC. Confere com o head `3975e98`: todos os arquivos da atividade são idênticos.
+- **Dependência do #150 na RC:** a `release_candidate` tem `ac948f0` (equivalente a `bf46807`). `3334ca7` (`feat(http)`: suprimir erro global por tipo) não está na RC; o #739 não quebrou por isso no typecheck, mas confirmar no app se o fluxo de erro global se comporta igual.
 - Checagem do `DELETE` (ver acima) segue em aberto.
 
 ## Pendências
@@ -87,3 +89,5 @@ Branch local, **nada enviado ao remoto**, sem PR. Histórico do dia em [[2026-10
 - Versão mínima do app (`PARKPRO_MIN_APP_VERSION` + `x-min-app-version`): fica para depois da publicação do app novo nas lojas.
 - Revogar JWT no logout: adiado por decisão do usuário.
 - Ação operacional sugerida: cada plantonista conferir em "Dispositivos de Atendente" o próprio registro antes do plantão até o deploy.
+- **Teste quebrado já na `test` (PR #155) e na RC (PR #162):** `src/presentation/pages/customer/Home/logoutInBackground.test.tsx` falha em 4 testes com `clearRenewal is not a function`, porque o mock de `AuthInterceptor` não exporta `clearRenewal` (usado por `sessionLogouts.ts`). Confirmado no head `3975e98`: a falha não veio da promoção. Corrigir em PR própria.
+- Typecheck com erros fora da atividade (em `AdsClickOutbox`, `TicketPresence`, `TicketInfo`, `VisitInfoCard` e `Home/index.test.tsx` linhas 604 e 622), já existentes na `test`.

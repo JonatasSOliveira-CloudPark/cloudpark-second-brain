@@ -94,6 +94,15 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 
 - O `AppVersionGuard` bloqueia sempre que a loja tem versão mais nova (pela API de atualização da loja). Funciona no Android desde a 2.1.0 e no iOS só a partir da 2.1.1.
 
+## Release 2.2.0 (RC → stable, 2026-10-23)
+- PR de promoção: [#164](https://github.com/cloudpark/cloudpark-parkpro/pull/164), `release_candidate` → `stable`, com merge commit. Assignee só o dev, sem reviewer (regra para PR de RC).
+- Escopo contra a `stable`: 187 commits, 292 arquivos (+20845 / −3755). Atividades: #739 (90 commits), #686 (20), #732 (18), #506 (2).
+- **Dependência:** o ERP de #732 e #739 precisa estar publicado antes do app nas lojas.
+- A RC já lê `/v1/parkpro/` no interceptor de erro global (`AUTH_ENDPOINT_PATTERNS`), então a pendência da #506 não se repete nesta promoção.
+- Notas enviadas às lojas: chat (reenvio automático e ressincronização), acesso técnico (tela inicial, suporte pelo chat, notificações, pátios por empresa) e plantão (status do alarme na tela inicial, aviso de aparelho não registrado).
+- Ficaram fora das notas: melhorias no registro do aparelho, logout, renovação de sessão e avisos repetidos no chat.
+- Ver o formato das notas em [[Notas de atualização para lojas]].
+
 ## Testes (Jest)
 - **Importar o `axios` em tempo de execução pode derrubar a suíte** com `TypeError: Cannot cancel a stream that already has a reader`. O erro vem do adapter `fetch` do axios rodando sobre o `expo/virtual/streams`, e aconteceu em 2026-10-15 num teste de util que importava o `normalizeGlobalHttpError`.
   - Contorno: um helper que só precisa de tipo do axios fica em módulo próprio, com `import type` (ex.: `src/infra/http/isTimeoutError.ts`).

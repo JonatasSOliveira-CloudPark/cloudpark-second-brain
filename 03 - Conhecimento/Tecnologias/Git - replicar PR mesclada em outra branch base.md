@@ -28,7 +28,16 @@ Abrangência: **processo** (fluxo de release, repos `cloudpark/cloudpark-erp` e 
 - Cherry-pick sem conflito não prova que o diff é o mesmo: a etapa 5 é o que prova.
 - No zsh, `git cherry-pick $(lista)` não separa os hashes (vira um argumento só, com quebras de linha). Usar `xargs`, como no passo 4.
 - Cherry-pick com a lista na ordem errada aplica o commit mais novo primeiro e gera conflito. Ordem cronológica: `--reverse --topo-order`.
+- Dependência de outra atividade já promovida à release por cherry-pick tem hash diferente. `git merge-base --is-ancestor <hash-da-test>` dá falso mesmo com o conteúdo presente. Conferir por mensagem de commit (`git log --grep`) ou por `git cherry <release> <head>` antes de concluir que falta.
 
 ## Relacionados
 - [[Git - branch mãe e atividade com dependência de outra]]
 - [[CloudPark ERP - Notas técnicas]] (convenção de PR de release: sem reviewer)
+
+## Caso 732-rc (2026-10-23): PR já na test, RC contida na test
+- Antes de montar a branch, `git cherry origin/test origin/release_candidate | grep '^+'` vazio = a RC não tem commit fora da `test`. Aí o head da PR (já mesclada na `test`) pode entrar na RC por merge sem perder nada da RC.
+- Merge do head com `-X theirs` resolve o conteúdo, mas deixa conflitos modify/delete (arquivos que a PR moveu). Remover com `git rm` ou apagar o arquivo: `git rm --cached` só tira do índice e o arquivo continua no disco como não rastreado, quebrando o typecheck.
+- Critério de conclusão: `git diff --name-status <head> -- .` vazio. Exceção aceita: um arquivo de teste que a RC tinha a mais (testes da #686), mantido de propósito.
+- O merge traz para a RC itens de outras atividades que entraram na `test` pelo merge do head (ex.: token de tracking no `eas.json`). Listar os arquivos antes de abrir a PR e sinalizar no corpo.
+- Typecheck: comparar a contagem de erros com a que a PR registrou como preexistente na `test`, não só "passou".
+- Referência: [[732 - Falar com Suporte (técnico)]].
