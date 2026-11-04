@@ -20,4 +20,11 @@
 - Não afirme que algo está mesclado sem conferir com `gh pr view <n> --json state,mergedAt`.
 - A issue é fechada manualmente, depois do deploy e da aprovação do QA. Nunca por palavra-chave na PR.
 
+## Relatório mensal de atividades entregues
+**Status:** confirmado em 2026-11-03, ao montar o relatório de outubro/2026.
+
+- **Fonte:** itens do board "Entregas CloudPark" (projeto 9 da org `cloudpark`) com status `Deploying` ou `Done` e atribuídos ao usuário. Ler o board exige o escopo `read:project` no `gh`; sem ele, `gh project list` falha.
+- **Período:** o board não informa quando o status mudou. Use a data do comentário "Checklist de Finalização" como aproximação e avise no relatório que é uma aproximação. Itens sem checklist no mês não entram, mesmo que tenham mudado de status nele.
+- **Conteúdo:** copie o bloco `## ✅ Entrega` do checklist. Algumas issues trazem subtítulos próprios ou usam "Checklist de Entrega Adicional"; revise esses casos à mão.
+
 Relacionado: [[Git - replicar PR mesclada em outra branch base]]
