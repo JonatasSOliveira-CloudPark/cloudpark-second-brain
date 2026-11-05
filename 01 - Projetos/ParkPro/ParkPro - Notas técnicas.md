@@ -141,6 +141,15 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 - Os 403 que a view de foto do ERP devolve sempre trazem `error` e `code: "FORBIDDEN"` (`fieldcontrol/views.py`). Logo, um 403 com o texto genérico não veio dessa view. Ver [[Erro HTTP com mensagem genérica - origem fora da view]].
 - Pendente: o 403 do upload da visita 53 em 2026-10-26, às 16:23, teve esse formato. A suspeita é o WAF do edge (`CrossSiteScripting_BODY` em Block). Não confirmada: depende do log do WAF com `terminatingRuleId`. Ver [[CloudPark ERP - Notas técnicas]], seção "Edge público, middleware e WAF".
 
+## Questionário de conclusão (#166, mesclado em 2026-11-03/04)
+- A conclusão usa a rota v2 do ERP (`conclude/v2/`). A v1 segue só com a descrição, para o app antigo. Ver [[2026-11-04 - Questionário de conclusão - rota v2 e convivência com o app antigo]].
+- Se o questionário não carrega, a tela mostra "Tentar novamente" e não conclui: não há fallback offline nesta entrega. Ver [[2026-11-04 - Questionário indisponível sem fallback offline (#166)]].
+- Rascunho local (AsyncStorage): salva enquanto o técnico preenche, restaura com o aviso "Respostas recuperadas" e é apagado ao concluir, ao sair da conta e quando a visita sai de andamento.
+- Mudança de versão do questionário na mesma visita: mantém as respostas cujo id existe na nova versão e com o tipo certo; o aviso lista as descartadas pelo texto da pergunta. Rascunhos antigos sem o texto guardado mostram "pergunta removida".
+- Assinatura: o canvas precisa da 5.1.1 da biblioteca. Ver [[react-native-signature-canvas - canvas 0x0 na 5.0.2]].
+
+## Ambiente local (worktree e node_modules)
+- O `node_modules` de um worktree pode ser um symlink para o checkout principal. Nesse caso, `pnpm install` ou `pnpm add` no worktree altera a árvore compartilhada, e o pnpm pode recusar com `ERR_PNPM_UNEXPECTED_VIRTUAL_STORE`. Para checar só o lockfile, usar `pnpm install --lockfile-only --frozen-lockfile`.
 ## Relacionados
 - [[732 - Falar com Suporte (técnico)]]
 - [[739 - Alarme de plantão em celular compartilhado]]

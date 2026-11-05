@@ -14,8 +14,15 @@
 4. `## 📝 Documentações`: vídeo de validação e Guia de Usuário, com link em markdown.
 5. `## 💬 Teste`: em quais branches foi mesclado e onde está disponível. Só escreva isso depois do merge real.
 
+## Quando não há link
+- Vídeo de validação sem link: `Vídeo de validação: pendente`.
+- Sem guia de usuário nem outra documentação: `Sem documentação/guias adicionais.`
+- Não há link faltando que bloqueie a publicação. O texto acima deixa a pendência visível.
+
 ## Regras
+- Planejar antes de publicar: montar o texto completo, mostrar para aprovação e só publicar depois do ok.
 - Links em markdown, com texto de âncora: `[PR #165](url)`, não a URL nua.
+- Links de PR e da atividade vêm da própria atividade (branch, PR aberto e issue), não de digitação manual.
 - No comentário sobre a RC, cite só a PR de RC.
 - Não afirme que algo está mesclado sem conferir com `gh pr view <n> --json state,mergedAt`.
 - A issue é fechada manualmente, depois do deploy e da aprovação do QA. Nunca por palavra-chave na PR.

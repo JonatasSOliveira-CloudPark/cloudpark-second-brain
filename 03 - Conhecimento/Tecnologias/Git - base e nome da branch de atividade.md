@@ -21,6 +21,11 @@ Abrangência: **processo** (repos `cloudpark/cloudpark-erp` e `cloudpark/cloudpa
   4. `git apply <arquivo>.patch`
 - `git switch` recusa o switch com alterações locais. Por isso o patch vem antes.
 
+## PR de atividade para `test`
+- A PR da atividade vai para `test` pela branch `<branch>-test`, criada a partir de `origin/test` (não da `stable`).
+- Os commits da branch mãe entram na `-test` por cherry-pick, na ordem cronológica. A branch mãe continua no remoto.
+- Caso parkpro#166 (2026-11-04): a PR foi aberta da branch mãe, que partia da `stable`. Foi fechada e refeita pela `-test`, com os mesmos 16 commits, sem conflito. O corpo da PR precisa apontar para o HEAD da `-test`.
+
 ## Relacionado
 - [[Git - branch mãe e atividade com dependência de outra]]
 - [[Git - replicar PR mesclada em outra branch base]]
