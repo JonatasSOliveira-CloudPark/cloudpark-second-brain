@@ -150,8 +150,15 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 
 ## Ambiente local (worktree e node_modules)
 - O `node_modules` de um worktree pode ser um symlink para o checkout principal. Nesse caso, `pnpm install` ou `pnpm add` no worktree altera a árvore compartilhada, e o pnpm pode recusar com `ERR_PNPM_UNEXPECTED_VIRTUAL_STORE`. Para checar só o lockfile, usar `pnpm install --lockfile-only --frozen-lockfile`.
+## Build iOS: EAS e CircleCI (verificado em 2026-11-09)
+- O CircleCI escolhe o perfil pela branch: `test` usa o perfil `test`, `stable` usa `production` e `release_candidate` usa `release_candidate` (`.circleci/config.yml`, bloco "Build & Submit"). O comando é `eas-cli@20.4.0 build --non-interactive --auto-submit-with-profile <perfil>`.
+- Todos os perfis iOS usam `credentialsSource: remote`: certificado e provisioning profile ficam no Expo, não no computador.
+- Erro visto em 2026-11-09 (perfil `test`): "Provisioning Profile has expired", seguido de "No certificate exists with serial number ...". O EAS tentou regerar o profile com um certificado de distribuição que não aparece mais na conta Apple. Causa: **hipótese**, não confirmada. Pendente: recriar o certificado e o profile com `eas credentials -p ios`.
+- `eas credentials` pede login de uma conta Expo. Esse login precisa ser de quem é dono do projeto. O `EXPO_TOKEN` do CircleCI também precisa pertencer à mesma organização Expo.
+
 ## Relacionados
 - [[732 - Falar com Suporte (técnico)]]
 - [[739 - Alarme de plantão em celular compartilhado]]
 - [[CloudPark ERP - Notas técnicas]]
 - [[Erro HTTP com mensagem genérica - origem fora da view]]
+- [[2026-11-09 - Mapa e cópia do endereço com mensagem fixa (#172)]]
