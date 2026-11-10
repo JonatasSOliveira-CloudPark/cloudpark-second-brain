@@ -156,6 +156,14 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 - Erro visto em 2026-11-09 (perfil `test`): "Provisioning Profile has expired", seguido de "No certificate exists with serial number ...". O EAS tentou regerar o profile com um certificado de distribuição que não aparece mais na conta Apple. Causa: **hipótese**, não confirmada. Pendente: recriar o certificado e o profile com `eas credentials -p ios`.
 - `eas credentials` pede login de uma conta Expo. Esse login precisa ser de quem é dono do projeto. O `EXPO_TOKEN` do CircleCI também precisa pertencer à mesma organização Expo.
 
+## Reforço de plantão (#616, 2026-11-10)
+- Canal `oncall_reinforcement_v1` e sons próprios (`oncall_reinforcement_android.mp3` e `oncall_reinforcement_ios.caf`). Build nativo novo para os sons.
+- Com o app aberto, o push chega por `onMessage` (`NotificationBootstrap`) e o handler exibe a notificação com som. Com o app em segundo plano ou fechado, o FCM exibe o bloco de notificação sem passar pelo JS.
+- Para não tirar o foco do alarme de outro chamado, o reforço não navega quando a rota atual é `OnCallAlarm`, `AcceptCall`, `CallSuccess` ou `AlreadyTaken`.
+- Na parada, o app cancela o reforço exibido pelo próprio app (`cancelNotification(id)`) e o exibido pelo sistema com `cancelNotification("0", tag)`. Ver [[FCM + sessão em app mobile - logout e aparelho compartilhado]].
+- **iOS:** não há `foregroundPresentationOptions` configurado; com o app aberto, o reforço pode não tocar. Pendente de teste no aparelho.
+- Diagnóstico de bandeja no Android: `adb shell dumpsys notification --noredact | grep -i oncall-reinf`.
+
 ## Relacionados
 - [[732 - Falar com Suporte (técnico)]]
 - [[739 - Alarme de plantão em celular compartilhado]]

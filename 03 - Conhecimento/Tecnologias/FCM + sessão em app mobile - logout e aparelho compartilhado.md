@@ -19,3 +19,7 @@ Abrangência: **candidato a padrão** para apps mobile com push (FCM) e sessão 
 - **Token salvo não prova registro:** antes de marcar o aparelho como ativo, compare o token salvo com o token FCM atual e confira se ele está na lista do servidor. Se o token mudou e o novo registro falhou, o token antigo ainda está na lista e um "último token salvo" bastaria para dar falso positivo. Foi o bloqueante mais grave da revisão do #739 (2026-10-19).
 - **Drenagem só espera o que dá para cancelar:** ao sair, espere só a operação que já chegou ao servidor. Nas etapas de permissão ou de token, não espere; a época da operação já impede o envio depois do stop.
 - **Operação em andamento reaproveitada precisa respeitar quem pode cancelá-la:** se o chamador seguinte traz outro sinal de cancelamento, não pode herdar a operação. Senão o abort do logout não alcança o envio e a espera vai até o timeout do cliente HTTP.
+
+## Notificação com bloco exibida pelo sistema (hipótese, #616)
+- Hipótese: o push do FCM com o bloco `notification` é exibido pelo sistema com `id = "0"` e a tag informada. Um cancelamento pelo id local não remove essa notificação; `cancelNotification("0", tag)` do notifee deve remover.
+- Status: **hipótese**. Confirmar no aparelho com `adb shell dumpsys notification --noredact` antes de tratar como regra.

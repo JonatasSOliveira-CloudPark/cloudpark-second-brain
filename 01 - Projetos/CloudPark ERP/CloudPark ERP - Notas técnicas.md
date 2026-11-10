@@ -32,6 +32,11 @@ Conhecimento do projeto `cloudpark/cloudpark-erp` confirmado em sessões de trab
 - A janela de plantão depende do pátio por causa do feriado local: `get_effective_ranges(date, parking)`. Quem decide se é plantão deve passar o `parking`.
 - Aceite da cobrança de plantão (PR #700 da #686, em revisão em 2026-10-15): a regra única é `OnCallChargeAcceptanceDomain.is_required(parking, request_type, team=None)`. Time com horário de atendimento não exige o aceite; senão, vale `OnCallDomain.is_on_call_window_now(parking)`. Os aceites ficam no histórico `OnCallChargeAcceptance`, por ciclo do chamado (`ticket_opened_at` = `creation_date`), e não mais nas colunas do `Ticket`. Ver [[686 - Aceite de plantão na reabertura de chamado]].
 
+- **Reforço de plantão (#616, 2026-11-10):** `OnCallReinforcementEvent` com os tipos `reinforcement`, `stopped`, `agent_viewed`, `first_message` e `error`. Motivos de parada: `first_response`, `ended`, `reassigned`, `superseded` e `awaiting_customer`. Após 3 erros seguidos na mesma rodada, o reforço não é reagendado.
+- Migrations 0116 a 0124 do `support`. A 0123 junta a 0122 com a 0116 do master; a 0124 adiciona o tipo `error`.
+- Envio atrás de `OnCallReinforcementConfig.push_enabled` (desligada por padrão), com TODO #616 para remover depois do deploy do app.
+- Suíte local: `FAKE_MQTT_INTEGRATION=true` no ambiente. O CI já usa o padrão verdadeiro. O `core/testing.py` não força mais a flag.
+
 ## Dispositivos e acesso do app ParkPro (`parkpro`, desde a #739)
 - Um app com 4 **modos de login**: operador (login com pátio), dashboard (Cognito, sem pátio), técnico, plantão. Modelos de dispositivo: `Device`, `TechnicianDevice`, `SupportAgentDevice` (`AppDeviceModel`, `fcm_token` único).
 - `parkpro/device_registry.py` centraliza: conflito de `device_uuid`, mesmo token em outro modo, `delete_devices()` (apaga gravando auditoria), registro auditado e `logout_device()`. Remoção de dispositivo nova deve passar por `delete_devices`.
