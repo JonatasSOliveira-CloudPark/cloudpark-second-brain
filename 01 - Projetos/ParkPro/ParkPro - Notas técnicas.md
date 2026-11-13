@@ -170,3 +170,10 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 - [[CloudPark ERP - Notas técnicas]]
 - [[Erro HTTP com mensagem genérica - origem fora da view]]
 - [[2026-11-09 - Mapa e cópia do endereço com mensagem fixa (#172)]]
+
+## Aceite de plantão (#881)
+- Arquivos: `src/presentation/pages/support-attendant/OnCall/` (`OnCallAlarmScreen` e `AcceptCallScreen`) e `src/domain/services/OnCall.service.ts`.
+- A mensagem vem de `getAcceptMessage` (GET `/v1/parkpro/support/on-call/accept-message/`, timeout 4 s, sem modal global). Falha vira campo vazio e aviso.
+- `respond` aceita como sucesso a resposta terminal (`already_taken`, `already_responded`, `notification_not_found`, `ticket_not_found`) e trata 400 com `detail` como erro do backend.
+- A volta do aceite é tratada no foco da tela de alarme; ver [[React Navigation - voltar de tela com estado de fluxo preso]].
+- Decisão: [[2026-11-11 - Mensagem automática do aceite configurada no ERP (#881)]].
