@@ -28,11 +28,19 @@ Abrangência: **processo** (fluxo de release, repos `cloudpark/cloudpark-erp` e 
 - Cherry-pick sem conflito não prova que o diff é o mesmo: a etapa 5 é o que prova.
 - No zsh, `git cherry-pick $(lista)` não separa os hashes (vira um argumento só, com quebras de linha). Usar `xargs`, como no passo 4.
 - Cherry-pick com a lista na ordem errada aplica o commit mais novo primeiro e gera conflito. Ordem cronológica: `--reverse --topo-order`.
+- `git log origin/stable..origin/<test>` mostra os commits de todas as atividades que já estão na `test`, não só os da atividade. Com a `test` na frente da RC, filtrar pelo prefixo `cloudpark/<repo>/#<n>:` (ver caso 172-rc abaixo) ou pelo merge da PR, senão o cherry-pick traz trabalho alheio.
 - Dependência de outra atividade já promovida à release por cherry-pick tem hash diferente. `git merge-base --is-ancestor <hash-da-test>` dá falso mesmo com o conteúdo presente. Conferir por mensagem de commit (`git log --grep`) ou por `git cherry <release> <head>` antes de concluir que falta.
 
 ## Relacionados
 - [[Git - branch mãe e atividade com dependência de outra]]
 - [[CloudPark ERP - Notas técnicas]] (convenção de PR de release: sem reviewer)
+
+## Caso 172-rc (2026-11-09): filtrar a atividade quando a test está muito à frente
+- `git log --no-merges --format='%h %s' origin/stable..origin/<atividade>-test` deu 57 commits. Só 11 eram da atividade, com prefixo `cloudpark/cloudpark-parkpro/#172:`. Esses 11 foram aplicados em ordem cronológica numa branch nova a partir de `origin/release_candidate`, sem conflito.
+- A branch da RC nasceu com `git worktree add -b <rc> <caminho> origin/release_candidate`. Para entrar nela no harness, usar `EnterWorktree` com o caminho, porque `git -C` e `git --git-dir` podem ser recusados em worktree isolado.
+- Testes: `node_modules` é um link para o worktree da atividade. Não precisou reinstalar. Remover o link depois de rodar o Jest.
+- Confirmar o resultado com `gh pr view <n> --json baseRefName,reviewRequests,assignees`: base `release_candidate`, sem revisor, assignee o dev.
+- PR #177, no repo parkpro. Ver [[ParkPro - Notas técnicas]].
 
 ## Caso 732-rc (2026-10-23): PR já na test, RC contida na test
 - Antes de montar a branch, `git cherry origin/test origin/release_candidate | grep '^+'` vazio = a RC não tem commit fora da `test`. Aí o head da PR (já mesclada na `test`) pode entrar na RC por merge sem perder nada da RC.
@@ -46,3 +54,9 @@ Abrangência: **processo** (fluxo de release, repos `cloudpark/cloudpark-erp` e 
 - Com o `stable` (ou a `test`) à frente da base da atividade, `git diff --name-only origin/<base> origin/<atividade>` lista arquivos de outras tasks. Não é o que a atividade mudou.
 - Para pegar só a atividade: `git merge-base origin/<base> origin/<atividade>` e, a partir dele, `git rev-list --reverse --no-merges <merge-base>..origin/<atividade>` (commits) e `git diff --name-only <merge-base> origin/<atividade>` (arquivos).
 - Caso 723: 4 commits e 6 arquivos. Cherry-pick sobre `origin/release_candidate` sem conflito, com um merge automático em `Actions.tsx`. Conferido com `git diff --stat origin/release_candidate HEAD` (6 arquivos).
+
+## Caso 179 (2026-11-13): atividade com base na test
+- A branch da atividade partia da `test`, não da `stable`. `git rev-list stable..atividade` trouxe cerca de 190 commits de outras tasks. Para achar a atividade, filtrar pelo prefixo: `git log --no-merges --reverse --grep='#179:' --format=%H origin/stable..<atividade>` (11 commits).
+- O commit de merge de `test` dentro da branch (`chore(merge)`) não foi aplicado: traz o trabalho de outras tasks.
+- `package.json` e `pnpm-lock.yaml` conflitam em cada base (a RC e a stable têm outras versões). Resolver o `package.json` à mão, sem o pacote removido, e regenerar o lock com `pnpm install --lockfile-only --ignore-scripts`. Depois, seguir os cherry-picks.
+- Conferência: `git diff --stat origin/<base> HEAD` com os arquivos da atividade e `pnpm exec jest` nas áreas alteradas.

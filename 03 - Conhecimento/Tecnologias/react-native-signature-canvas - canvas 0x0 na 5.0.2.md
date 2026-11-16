@@ -1,5 +1,7 @@
 # react-native-signature-canvas — canvas 0x0 na 5.0.2
 
+> **Histórico (2026-11-13):** a lib saiu do ParkPro na #179, com a troca por desenho nativo. Ver [[2026-11-13 - Assinatura do cliente com desenho nativo (#179)]]. O diagnóstico abaixo vale só para a versão 5.0.2.
+
 **Abrangência:** tecnologia (React Native, app ParkPro). **Status:** confirmado no aparelho (2026-11-03).
 
 ## Sintoma
