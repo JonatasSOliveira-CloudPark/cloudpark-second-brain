@@ -162,7 +162,7 @@ Conhecimento do app `cloudpark/parkpro` (React Native/Expo) confirmado no códig
 - Para não tirar o foco do alarme de outro chamado, o reforço não navega quando a rota atual é `OnCallAlarm`, `AcceptCall`, `CallSuccess` ou `AlreadyTaken`.
 - Na parada, o app cancela o reforço exibido pelo próprio app (`cancelNotification(id)`) e o exibido pelo sistema com `cancelNotification("0", tag)`. Ver [[FCM + sessão em app mobile - logout e aparelho compartilhado]].
 - **iOS:** não há `foregroundPresentationOptions` configurado; com o app aberto, o reforço pode não tocar. Pendente de teste no aparelho.
-- Diagnóstico de bandeja no Android: `adb shell dumpsys notification --noredact | grep -i oncall-reinf`.
+- Diagnóstico de bandeja no Android: `adb shell dumpsys notification --noredact | grep -i "Reforço de plantão"`. Filtrar pelo id ou tag (`oncall-reinf`) não encontra o lembrete no `dumpsys`; filtrar pelo título encontra.
 
 ## Relacionados
 - [[732 - Falar com Suporte (técnico)]]

@@ -33,9 +33,13 @@ Conhecimento do projeto `cloudpark/cloudpark-erp` confirmado em sessões de trab
 - Aceite da cobrança de plantão (PR #700 da #686, em revisão em 2026-10-15): a regra única é `OnCallChargeAcceptanceDomain.is_required(parking, request_type, team=None)`. Time com horário de atendimento não exige o aceite; senão, vale `OnCallDomain.is_on_call_window_now(parking)`. Os aceites ficam no histórico `OnCallChargeAcceptance`, por ciclo do chamado (`ticket_opened_at` = `creation_date`), e não mais nas colunas do `Ticket`. Ver [[686 - Aceite de plantão na reabertura de chamado]].
 
 - **Reforço de plantão (#616, 2026-11-10):** `OnCallReinforcementEvent` com os tipos `reinforcement`, `stopped`, `agent_viewed`, `first_message` e `error`. Motivos de parada: `first_response`, `ended`, `reassigned`, `superseded` e `awaiting_customer`. Após 3 erros seguidos na mesma rodada, o reforço não é reagendado.
+- Testar o plantão à mão (2026-11-16): `OnCallDomain.notify_round(ticket, 1)` manda a primeira rodada para o plantonista de agora. Reenviar no mesmo chamado não funciona depois do escalonamento (o líder já foi acionado): criar outro chamado.
+- Escalonamento: com `escalation_timeout_minutes = 1`, o alarme sem aceite expira em um minuto e o líder recebe. Se o líder é o próprio plantonista, o aceite precisa vir logo.
+- Reforço com o celery parado: as rodadas param. Ao subir o worker, a rodada atrasada sai na hora e a cadeia segue no intervalo de 5 min (observado no chamado 6781).
+- Parada por primeira resposta: é disparada pela mensagem visível ao cliente enviada pelo plantonista (`TicketMessage`). Confirmada no 6781 em 2026-11-16: mensagem às 11:29:53, parada às 11:29:54.
 - Migrations 0116 a 0124 do `support`. A 0123 junta a 0122 com a 0116 do master; a 0124 adiciona o tipo `error`.
 - Envio atrás de `OnCallReinforcementConfig.push_enabled` (desligada por padrão), com TODO #616 para remover depois do deploy do app.
-- Suíte local: `FAKE_MQTT_INTEGRATION=true` no ambiente. O CI já usa o padrão verdadeiro. O `core/testing.py` não força mais a flag.
+- Suíte local: **correção em 2026-11-16.** `FAKE_MQTT_INTEGRATION=true` exportado no shell não basta em dev: o OpenBao sobrescreve a variável em `os.environ` ao carregar o settings, e o valor efetivo continua `false` com o `.env` local. Sem forçar o flag, a suíte acusa acesso à rede externa (thread do paho). O CI usa o padrão verdadeiro. O `core/testing.py` não força mais a flag.
 
 ## Dispositivos e acesso do app ParkPro (`parkpro`, desde a #739)
 - Um app com 4 **modos de login**: operador (login com pátio), dashboard (Cognito, sem pátio), técnico, plantão. Modelos de dispositivo: `Device`, `TechnicianDevice`, `SupportAgentDevice` (`AppDeviceModel`, `fcm_token` único).
